@@ -49,15 +49,3 @@ char **my_str_to_word_array_synthesis(char const *str)
     args[size] = NULL;
     return (args);
 }
-
-/*int main(int argc, char **argv)
-{
-    unsigned char test[23] = "BONJOUR-BONSOIR_NON%ah\0";
-    char **hey = my_str_to_word_array_synthesis(test);
-
-    for (int i = 0; hey[i] != NULL; ++i) {
-        printf("%s\n", hey[i]);
-        if (hey[i] == NULL)
-            exit (1);
-    }
-}*/
