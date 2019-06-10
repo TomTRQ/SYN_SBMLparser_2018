@@ -88,6 +88,6 @@ char *clean_str(char *str, int free_source)
         return (NULL);
     if (free_source == 1)
         free(str);
-    result = remove_arrows_string(result);
+    result = remove_useless_characters_string(result);
     return (result);
 }

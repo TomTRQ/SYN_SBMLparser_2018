@@ -13,6 +13,8 @@ SRC	=   $(SRC_PATH)main.c                   \
         $(SRC_PATH)initiate_structs.c       \
         $(SRC_PATH)print_h.c                \
         $(SRC_PATH)get_content.c            \
+        $(SRC_PATH)parsing.c                \
+        $(SRC_PATH)print_content.c          \
 
 OBJ	=	$(SRC:.c=.o)
 

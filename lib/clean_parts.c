@@ -24,17 +24,17 @@ char *remove_first_letter(char *str)
     return (new);
 }
 
-char *remove_arrows_string(char *str)
+char *remove_useless_characters_string(char *str)
 {
-    if (str == NULL || my_strlen(str) < 2)
+    int last_char = 0;
+
+    if (str == NULL || my_strlen(str) < 1)
         return (NULL);
-    if (str[my_strlen(str) - 1] == '>')
-        str[my_strlen(str) - 1] = '\0';
-    if (str[my_strlen(str) - 1] == '/')
-        str[my_strlen(str) - 1] = '\0';
-    if (str[0] == '<')
-        str = remove_first_letter(str);
-    if (str[0] == '/')
+    last_char = my_strlen(str) - 1;
+    if (str[last_char] == '>' || str[last_char] == '/' || \
+    str[last_char] == '"')
+        str[last_char] = '\0';
+    if (str[0] == '<' || str[0] == '/' || str[0] == '"')
         str = remove_first_letter(str);
     return (str);
 }

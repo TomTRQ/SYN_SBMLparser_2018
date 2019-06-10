@@ -19,7 +19,7 @@ void my_putnbr(int nb);
 char *clean_str(char *str, int free_source);
 char *clean_begin(char *str);
 char *clean_end(char *str);
-char *remove_arrows_string(char *str);
+char *remove_useless_characters_string(char *str);
 int my_strlen(char *str);
 
 #endif

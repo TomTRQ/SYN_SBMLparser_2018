@@ -17,12 +17,12 @@ typedef struct elements_s
 
 typedef struct sbml_s
 {
-    elements_t **elems;
+    elements_t *elems;
 } sbml_t;
 
 typedef struct model_s
 {
-    elements_t **elems;
+    elements_t *elems;
 } model_t;
 
 typedef struct list_s
