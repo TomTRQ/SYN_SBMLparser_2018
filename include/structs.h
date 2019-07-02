@@ -32,6 +32,13 @@ typedef struct list_s
     struct list_s *next;
 } list_t;
 
+typedef struct print_s
+{
+    char *name;
+    char **content;
+    struct print_s *next;
+} print_t;
+
 typedef struct parse_s
 {
     char *i_option;
@@ -40,6 +47,7 @@ typedef struct parse_s
     sbml_t *sbml;
     model_t *model;
     list_t *list;
+    print_t *print;
 } parse_t;
 
 #endif

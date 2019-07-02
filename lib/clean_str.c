@@ -53,7 +53,7 @@ static int get_nb_char(char *str)
 char *clean_double_space(char *str)
 {
     int nb_chara = get_nb_char(str) + get_nb_word(str) - 1;
-    char *cleaned = malloc(sizeof(char) * (nb_chara + 1));
+    char *cleaned = malloc(sizeof(char) * (nb_chara + 2));
     int pos = 0;
 
     if (!cleaned)
@@ -65,6 +65,7 @@ char *clean_double_space(char *str)
         if (str[i] == ' ' || str[i] == '\t')
             skip_more_spaces(&i, str);
     }
+    cleaned[pos] = '\0';
     free(str);
     return (cleaned);
 }
@@ -83,6 +84,7 @@ char *clean_str(char *str, int free_source)
     result = clean_end(result);
     if (!result)
         return (NULL);
+    for (int i = 0; result[i] != '\0'; i++);
     result = clean_double_space(result);
     if (!result)
         return (NULL);

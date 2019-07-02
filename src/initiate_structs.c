@@ -10,7 +10,7 @@
 #include "sbml.h"
 #include "const.h"
 
-int find_size_tab(char *str, char *file, int line)
+int find_size_tab(char *file, int line)
 {
     char *new_line = NULL;
     int count = 0;
@@ -18,19 +18,19 @@ int find_size_tab(char *str, char *file, int line)
     line += 1;
     new_line = get_word(file, '\n', line);
     while (find_char_number(new_line, '=') > 0) {
+        free(new_line);
         line += 1;
         count += 1;
         new_line = get_word(file, '\n', line);
     }
-    new_line = get_word(file, '\n', line + 1);
+    free(new_line);
     return (count);
 }
 
 list_t *add_element_linked_list(parse_t *parse, char *str, char *file, int line)
 {
     list_t *new = malloc(sizeof(list_t));
-    list_t *temp = parse->list;
-    int size = find_size_tab(str, file, line);
+    int size = find_size_tab(file, line);
 
     if (new == NULL)
         return (NULL);
@@ -42,9 +42,8 @@ list_t *add_element_linked_list(parse_t *parse, char *str, char *file, int line)
         parse->list = new;
     }
     new->name = my_strcpy(new->name, str);
-    new->elems = malloc(sizeof(elements_t) * (size + 1));
+    new->elems = malloc(sizeof(elements_t *) * (size + 1));
     new->elems[size] = NULL;
-    printf("NAME LIST:%s\n------------------\n", new->name);
     return (parse->list);
 }
 
@@ -67,10 +66,4 @@ parse_t *initiate_structs(void)
     parse->e_option = 0;
     parse->json_option = 0;
     return (parse);
-}
-
-int free_structs(parse_t *parse)
-{
-    free(parse);
-    return (SUCCESS);
 }

@@ -13,6 +13,9 @@ SRC	=	my_strcat.c     \
         clean_str.c     \
         my_strcpy.c     \
         my_strncpy.c    \
+        find_char_number.c  \
+        get_string_from_elem.c   \
+        find_part_loop.c        \
 
 OBJ	=	$(SRC:.c=.o)
 

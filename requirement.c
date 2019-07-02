@@ -5,47 +5,79 @@
 ** Requirement.c
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 
-static int find_cut_char(char c)
+static int is_alphanumeric(char c)
 {
-    if (c < 48 || (c > 57 && c < 65) || (c > 90 && c < 97) || c > 122)
+    if ((c >= '1' && c <= '9') || (c >= 'a' && c <= 'z') || \
+    (c >= 'A' && c <= 'Z'))
         return (1);
-    else
-        return (0);
+    return (0);
 }
 
-static int spliter_count(char const *tab)
+static int	count_words(char const *str)
 {
-    int i = 0;
-    int words = 0;
+    int		word = 0;
+    int		i = 0;
+    int		nb_words = 0;
 
-    while (tab[i] != '\0') {
-        words += (find_cut_char(tab[i]) == 0 && tab[i] != '\0');
-        for (; tab[i] != '\0' && find_cut_char(tab[i]) == 0; i++);
-        i++;
+    while (str[i] != '\0') {
+        if (word == 0 && is_alphanumeric(str[i]) == 1) {
+            word = 1;
+            nb_words = nb_words + 1;
+        }
+        if (word == 1 && is_alphanumeric(str[i]) == 0)
+            word = 0;
+        i = i + 1;
     }
-    return (words);
+    return (nb_words);
+}
+
+static void	my_strncpy(char *new_str, char const *str, \
+int begin, int end)
+{
+    int	i = 0;
+
+    while (begin <= end) {
+        new_str[i] = str[begin];
+        begin = begin + 1;
+        i = i + 1;
+    }
+    new_str[i] = '\0';
+}
+
+static int save_words(char **tab, char const *str, int nb_words)
+{
+    int	i = 0;
+    int	begin = 0;
+    int	actual = 0;
+
+    while (actual < nb_words) {
+        while (str[i] && is_alphanumeric(str[i]) == 0)
+            i = i + 1;
+        begin = i;
+        while (str[i] && is_alphanumeric(str[i]) == 1)
+            i = i + 1;
+        tab[actual] = malloc(sizeof(char) * ((i - 1) - begin + 2));
+        if (tab[actual] == NULL)
+            return (84);
+        my_strncpy(tab[actual], str, begin, i - 1);
+        i = i + 1;
+        actual = actual + 1;
+    }
+    return (0);
 }
 
 char **my_str_to_word_array_synthesis(char const *str)
 {
-    char **args = NULL;
-    int size = spliter_count(str);
-    int i = 0;
-    int k = 0;
+    int	nb_words = count_words(str);
+    char **tab = NULL;
 
-    args = malloc(sizeof(char *) * (size + 1));
-    for (int j = 0; j < size; j++) {
-        for (k = 0 ; find_cut_char(str[i + k]) == 0 && \
-        str[i + k] != '\0' ; k++);
-        args[j] = malloc(sizeof(char) * (k + 1));
-        for (int l = 0; l < k; l++, i++)
-            args[j][l] = str[i];
-        args[j][k] = '\0';
-        i++;
-    }
-    args[size] = NULL;
-    return (args);
+    tab = malloc(sizeof(char *) * (nb_words + 1));
+    if (tab == NULL)
+        return (NULL);
+    if (save_words(tab, str, nb_words) == 84)
+        return (NULL);
+    tab[nb_words] = NULL;
+    return (tab);
 }

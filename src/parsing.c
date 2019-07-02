@@ -11,107 +11,88 @@
 #include "sbml.h"
 #include "const.h"
 
-static const char *parts_name[5] = {"listOfCompartments", "listOfSpecies", \
-"listOfReactions", "listOfReactants", "listOfProducts"};
-
-int find_char_number(char *str, char c)
+void loop_add_parse_string(char *str, elements_t *elems, \
+char *argument, int *ptr)
 {
-    int i = 0;
-    int nbr = 0;
-
-    if (str == NULL)
-        return (0);
-    while (str[i] != '\0') {
-        if (str[i] == c)
-            nbr += 1;
-        i = i + 1;
-    }
-    return (nbr);
-}
-
-char *get_full_name(char *elem, char *str, int *i)
-{
-    int close = 0;
-    char *second = 0;
-
-    if (find_char_number(elem, '"') == 1)
-        close = 1;
-    while (close == 1) {
-        *i = *i + 1;
-        second = get_word(str, ' ', *i);
-        elem = my_strcat(elem, second);
-        if (second[0] == '\0' || find_char_number(second, '"') == 1)
-            close = 0;
-        free(second);
-    }
-    return (elem);
-}
-
-void parse_string(char *str, parse_t *parse, elements_t *elems)
-{
-    int i = 2;
     int params = find_char_number(str, ' ') + 1;
-    char *elem = NULL;
+    int i = 2;
+
+    while (i <= params) {
+        argument = get_word(str, ' ', i);
+        argument = get_full_name(argument, str, &i);
+        elems->category[*ptr] = get_word(argument, '=', 1);
+        elems->content[*ptr] = remove_useless_characters_string\
+        (get_word(argument, '=', 2));
+        i = i + 1;
+        *ptr += 1;
+        free(argument);
+    }
+}
+
+int parse_string(char *str, elements_t *elems)
+{
+    char *argument = NULL;
     int ptr = 0;
 
+    if (str != NULL && str[0] == '\0')
+        return (SUCCESS);
     if (str == NULL)
-        return;
-    while (i <= params) {
-        elem = get_word(str, ' ', i);
-        elem = get_full_name(elem, str, &i);
-        elems->category[ptr] = get_word(elem, '=', 1);
-        elems->content[ptr] = remove_useless_characters_string\
-        (get_word(elem, '=', 2));
-        printf("CATEGORY:%s\n", elems->category[ptr]);
-        printf("CONTENT:%s\n", elems->content[ptr]);
-        free(elem);
-        i = i + 1;
-        ptr += 1;
-    }
-    printf("\n");
+        return (ERROR);
+    loop_add_parse_string(str, elems, argument, &ptr);
+    elems->category[ptr] = NULL;
+    elems->content[ptr] = NULL;
+    return (SUCCESS);
 }
 
-int add_elements_struct(char *str, elements_t *elems, parse_t *parse)
+elements_t *add_elements_struct(char *str, elements_t *elems)
 {
     int count = find_char_number(str, '=');
     char *cut = NULL;
 
-    if (count == 0)
-        return (SUCCESS);
-    str = clean_str(str, 0);
+    str = clean_str(str, 1);
+    if (str != NULL && str[0] == '/')
+        str[0] = '\0';
     elems = malloc(sizeof(elements_t));
+    if (elems == NULL)
+        return (NULL);
     elems->category = malloc(sizeof(char *) * (count + 1));
     elems->content = malloc(sizeof(char *) * (count + 1));
     cut = get_word(str, ' ', 1);
-    if (elems == NULL || cut == NULL || \
-    elems->category == NULL || elems->content == NULL)
-        return (ERROR);
+    if (cut == NULL || elems->category == NULL || elems->content == NULL)
+        return (NULL);
     elems->name = my_strcpy(elems->name, cut);
-    printf("NAME:%s\n", elems->name);
-    parse_string(str, parse, elems);
-    free(elems);
-    return (SUCCESS);
+    parse_string(str, elems);
+    free(str);
+    return (elems);
+}
+
+void add_sbml_model_parse_struct(parse_t *parse, char *file)
+{
+    parse->sbml->elems = add_elements_struct\
+    (get_word(file, '\n', 2), parse->sbml->elems);
+    parse->model->elems = add_elements_struct(get_word\
+    (file, '\n', 3), parse->model->elems);
 }
 
 int parse_file(char *file, parse_t *parse)
 {
-    int parts = 0;
-    int line = 0;
     char *str = NULL;
 
-    add_elements_struct(get_word(file, '\n', 1), parse->sbml->elems, parse);
-    add_elements_struct(get_word(file, '\n', 2), parse->model->elems, parse);
-    for (int i = 3; parts <= 5; i++, line++) {
+    add_sbml_model_parse_struct(parse, file);
+    for (int i = 4, parts = 0, line = 0; parts <= 5; i++) {
         str = get_word(file, '\n', i);
-        str = clean_str(str, 0);
-        for (; parts <= 4 && my_strcmp(str, parts_name[parts]) == 0;\
-        line = 0, parts += 1)
-            parse->list = add_element_linked_list(parse, str, file, i);
+        str = clean_str(str, 1);
         if (str == NULL || str[0] == '\0')
             return (SUCCESS);
-        if (add_elements_struct(str, parse->list->elems[line], parse) == ERROR)
-            return (ERROR);
-        free(str);
+        for (; parts <= 4 && find_part_loop(&parts, str) \
+        == 1; line = 0)
+            parse->list = add_element_linked_list(parse, str, file, i);
+        if (find_char_number(str, '=') > 0 && parse->list != NULL && \
+        parse->list->elems != NULL) {
+            parse->list->elems[line] = add_elements_struct\
+            (str, parse->list->elems[line]);
+            line += 1;
+        }
     }
     return (SUCCESS);
 }
