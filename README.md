@@ -1,2 +1,2 @@
 # SYN_SBMLparser_2018
-triquet.tom@epitech.eu
+The goal of the project was to parse SBML file to get precise content
